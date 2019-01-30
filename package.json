@@ -1,0 +1,16 @@
+{
+  "name": "vega-render",
+  "version": "1.0.0",
+  "description": "API for vega chart rendering",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "author": "@SimonHearne",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.16.4",
+    "quick-hash": "^1.0.4",
+    "vega": "^4.4.0"
+  }
+}
