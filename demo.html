@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Vega Renderer Demo</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        html, body {
+            font-family: sans-serif;
+        }
+        h2 {
+            font-weight: 300;
+        }
+        section {
+            padding: 20px;
+            width: calc(50% - 40px);
+            float: left;
+        }
+        textarea {
+            width: 100%;
+            font-family: monospace;
+        }
+        button {
+            width: 100%;
+            font-size: 20px;
+        }
+    </style>
+  </head>
+  <body>
+      <section id="section-form">
+        <h2>Vega Specification</h2>
+        <form name="vega-form" id="vega-form" action="/svg/" method="POST">
+        <textarea rows="50" id="vega-spec">
+        {
+            "$schema": "https://vega.github.io/schema/vega/v4.json",
+            "width": 400,
+            "height": 200,
+            "padding": 5,
+          
+            "data": [
+              {
+                "name": "table",
+                "values": [
+                  {"category": "A", "amount": 28},
+                  {"category": "B", "amount": 55},
+                  {"category": "C", "amount": 43},
+                  {"category": "D", "amount": 91},
+                  {"category": "E", "amount": 81},
+                  {"category": "F", "amount": 53},
+                  {"category": "G", "amount": 19},
+                  {"category": "H", "amount": 87}
+                ]
+              }
+            ],
+          
+            "signals": [
+              {
+                "name": "tooltip",
+                "value": {},
+                "on": [
+                  {"events": "rect:mouseover", "update": "datum"},
+                  {"events": "rect:mouseout",  "update": "{}"}
+                ]
+              }
+            ],
+          
+            "scales": [
+              {
+                "name": "xscale",
+                "type": "band",
+                "domain": {"data": "table", "field": "category"},
+                "range": "width",
+                "padding": 0.05,
+                "round": true
+              },
+              {
+                "name": "yscale",
+                "domain": {"data": "table", "field": "amount"},
+                "nice": true,
+                "range": "height"
+              }
+            ],
+          
+            "axes": [
+              { "orient": "bottom", "scale": "xscale" },
+              { "orient": "left", "scale": "yscale" }
+            ],
+          
+            "marks": [
+              {
+                "type": "rect",
+                "from": {"data":"table"},
+                "encode": {
+                  "enter": {
+                    "x": {"scale": "xscale", "field": "category"},
+                    "width": {"scale": "xscale", "band": 1},
+                    "y": {"scale": "yscale", "field": "amount"},
+                    "y2": {"scale": "yscale", "value": 0}
+                  },
+                  "update": {
+                    "fill": {"value": "steelblue"}
+                  },
+                  "hover": {
+                    "fill": {"value": "red"}
+                  }
+                }
+              },
+              {
+                "type": "text",
+                "encode": {
+                  "enter": {
+                    "align": {"value": "center"},
+                    "baseline": {"value": "bottom"},
+                    "fill": {"value": "#333"}
+                  },
+                  "update": {
+                    "x": {"scale": "xscale", "signal": "tooltip.category", "band": 0.5},
+                    "y": {"scale": "yscale", "signal": "tooltip.amount", "offset": -2},
+                    "text": {"signal": "tooltip.amount"},
+                    "fillOpacity": [
+                      {"test": "datum === tooltip", "value": 0},
+                      {"value": 1}
+                    ]
+                  }
+                }
+              }
+            ]
+          }          
+        </textarea>
+        <br>
+        <button id="vega-btn">Submit</button>
+        </form>
+    </section>
+    <section id="section-image">
+        <h2>Image</h2>
+        <img id="vega-image" src=""/>
+    </section>
+    <script>
+        const form = document.getElementById("vega-form");
+        form.onsubmit = function (e) {
+            e.preventDefault();
+
+            let spec = document.getElementById("vega-spec").value;
+            let xhr = new XMLHttpRequest();
+            xhr.open(form.method, form.action, true);
+            xhr.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
+
+            xhr.send(spec);
+            let image = document.getElementById("vega-image");
+            xhr.onloadend = function () {
+                console.log(this.response);
+                image.src="data:image/svg+xml;utf8,"+this.response;
+            };
+        }
+    </script>
+  </body>
