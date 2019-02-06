@@ -8,7 +8,7 @@ var express = require('express'),
     hash = require('quick-hash');
 
 const { exec } = require('child_process');
-var port = process.argv[2] || 5000;
+var port = process.argv[2] || process.env.PORT || 5000;
 
 var app = express();
 var svgHeader =
